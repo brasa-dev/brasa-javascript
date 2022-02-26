@@ -1,0 +1,39 @@
+{
+  "name": "@lotuz/jsminify",
+  "version": "0.0.21",
+  "description": "A javascript minifier written in C, using tree-sitter-javascript parser",
+  "keywords": [
+    "javascript",
+    "minifier",
+    "c",
+    "node-addon",
+    "tree-sitter"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "node-addon-api": "^3.1.0",
+    "node-gyp-build": "^4.2.3"
+  },
+  "devDependencies": {
+    "node-gyp": "^7.1.2",
+    "prebuildify": "^4.1.1"
+  },
+  "scripts": {
+    "install": "node-gyp-build",
+    "prebuild": "prebuildify --napi --quiet",
+    "test": "echo 'tested'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcel0ll/jsminify.git"
+  },
+  "author": "Marcelo L. Lotufo (@marcel0ll)",
+  "bugs": {
+    "url": "https://github.com/marcel0ll/jsminify/issues"
+  },
+  "homepage": "https://github.com/marcel0ll/jsminify",
+  "bin": {
+    "jsminify": "index.js"
+  }
+}

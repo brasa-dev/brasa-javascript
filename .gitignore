@@ -1,0 +1,12 @@
+jsminify
+node_modules/
+comp/
+res/
+build/
+test/tmp/
+prebuilds/
+perf/
+palette.map
+gmon.out
+perf.data
+perf.data.old
