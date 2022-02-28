@@ -10,5 +10,5 @@ gcc -Wall -I tree-sitter/lib/include \
   ./libs/tree-sitter/lib/src/lib.c                  \
   -ljansson \
   -lm \
-  -o roseta
+  -o roseta-javascript
 

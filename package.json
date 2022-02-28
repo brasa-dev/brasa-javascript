@@ -1,7 +1,7 @@
 {
-  "name": "@lotuz/jsminify",
-  "version": "0.0.21",
-  "description": "A javascript minifier written in C, using tree-sitter-javascript parser",
+  "name": "@lotuz/roseta-javascript",
+  "version": "0.0.1",
+  "description": "A javascript dialect transpiler written in C, using tree-sitter-roseta-javascript parser",
   "keywords": [
     "javascript",
     "minifier",
@@ -24,16 +24,8 @@
     "prebuild": "prebuildify --napi --quiet",
     "test": "echo 'tested'"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/marcel0ll/jsminify.git"
-  },
   "author": "Marcelo L. Lotufo (@marcel0ll)",
-  "bugs": {
-    "url": "https://github.com/marcel0ll/jsminify/issues"
-  },
-  "homepage": "https://github.com/marcel0ll/jsminify",
   "bin": {
-    "jsminify": "index.js"
+    "roseta-javascript": "index.js"
   }
 }
