@@ -143,7 +143,7 @@ int parse_file(int argc, char * argv[]) {
     return 1;
   }
   const char *source_code = get_source(file_path);
-  const char *source_json = get_source("./en->pt.json");
+  const char *source_json = get_source("./pt-br.json");
 
   json_error_t error;
   dialect = json_loads(source_json, 0, &error);
@@ -156,9 +156,9 @@ int parse_file(int argc, char * argv[]) {
   lexicon = json_object_get(dialect, "lexicon");
   identifiers = json_object_get(dialect, "identifiers");
 
-  TSLanguage *tree_sitter_javascript();
+  TSLanguage *tree_sitter_ptbrjavascript();
   TSParser *parser = ts_parser_new();
-  ts_parser_set_language(parser, tree_sitter_javascript());
+  ts_parser_set_language(parser, tree_sitter_ptbrjavascript());
 
   TSTree *tree = ts_parser_parse_string(
     parser,
@@ -169,7 +169,7 @@ int parse_file(int argc, char * argv[]) {
 
   TSNode root_node = ts_tree_root_node(tree);
 
-  struct visit_context *context = context_new(tree_sitter_javascript(), source_code, debug);
+  struct visit_context *context = context_new(tree_sitter_ptbrjavascript(), source_code, debug);
 
   context_set_global_visitor(context, node_text, NULL);
 
