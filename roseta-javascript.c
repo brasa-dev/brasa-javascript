@@ -51,7 +51,6 @@ void node_text (TSNode node, struct visit_context * context) {
       seeker = ts_node_child(member, 0);
     };
 
-
     // we have identifier obj
     json_t * curIdObj = json_object_get(identifiers, ts_node_text(seeker, context));
 
@@ -86,11 +85,12 @@ void node_text (TSNode node, struct visit_context * context) {
 int parse_file(int argc, char * argv[]) {
   int i;
   char * output_path = NULL;
+  char * config_path = NULL;
   int last_arg = 0;
   for (i = 0; i < argc; i++) {
     char * arg = argv[i];
     if (strcmp("-v", arg) == 0 || strcmp("--version", arg) == 0) {
-      printf("@lotuz/roseta%s\n", VERSION);
+      printf("@lotuz/roseta-javascript%s\n", VERSION);
       return 0;
     } else if (strcmp("-h", arg) == 0 || strcmp("--help", arg) == 0) {
       printf("Usage: roseta [OPTIONS] [FILE]\n");
@@ -98,16 +98,12 @@ int parse_file(int argc, char * argv[]) {
       printf("Options: \n");
       printf("\t -h, --help: For printing roseta help\n");
       printf("\t -v, --version: For printing roseta version\n");
-      printf("\t -d, --debug: For debugging minification, also helpful for bug report\n");
+      printf("\t -d, --debug: For debugging, also helpful for bug report\n");
       printf("\t -o, --output: Sets the output file\n");
-      printf("\t (WIP) -c, --keep-comments: Keeps comments while minifying\n");
-      printf("\t (WIP) -b, --beautify: For pretty printing file\n");
+      printf("\t -c, --config: Sets the dialog config file\n");
       return 0;
     } else if (strcmp("-d", arg) == 0 || strcmp("--debug", arg) == 0) {
       debug = 1;
-      last_arg = i;
-    } else if (strcmp("-b", arg) == 0 || strcmp("--beautify", arg) == 0) {
-      BEAUTIFY = 1;
       last_arg = i;
     } else if (strcmp("-o", arg) == 0 || strcmp("--output", arg) == 0) {
       if (i + 1 < argc) {
@@ -118,13 +114,24 @@ int parse_file(int argc, char * argv[]) {
         return 1;
       }
       last_arg = i;
-    } else if (strcmp("-k", arg) == 0 || strcmp("--keep-comments", arg) == 0) {
-      KEEP_COMMENTS = 1;
+    } else if (strcmp("-c", arg) == 0 || strcmp("--config", arg) == 0) {
+      if (i + 1 < argc) {
+        config_path = argv[i + 1];
+        i++;
+      } else {
+        printf("Missing config file path\n");
+        return 1;
+      }
       last_arg = i;
     }
   }
   size_t buffer_size = BUFSIZ;
   char * buffer = malloc(buffer_size);
+  if (output_path != NULL) {
+    printf("Missing config file path\n");
+    return 1;
+  }
+
   if (output_path != NULL) {
     new_stdout = freopen(output_path, "w", stdout);
     if(new_stdout == NULL) {
@@ -143,7 +150,7 @@ int parse_file(int argc, char * argv[]) {
     return 1;
   }
   const char *source_code = get_source(file_path);
-  const char *source_json = get_source("./pt-br.json");
+  const char *source_json = get_source(config_path);
 
   json_error_t error;
   dialect = json_loads(source_json, 0, &error);
@@ -156,9 +163,9 @@ int parse_file(int argc, char * argv[]) {
   lexicon = json_object_get(dialect, "lexicon");
   identifiers = json_object_get(dialect, "identifiers");
 
-  TSLanguage *tree_sitter_ptbrjavascript();
+  TSLanguage *tree_sitter_roseta_javascript();
   TSParser *parser = ts_parser_new();
-  ts_parser_set_language(parser, tree_sitter_ptbrjavascript());
+  ts_parser_set_language(parser, tree_sitter_roseta_javascript());
 
   TSTree *tree = ts_parser_parse_string(
     parser,
@@ -169,7 +176,7 @@ int parse_file(int argc, char * argv[]) {
 
   TSNode root_node = ts_tree_root_node(tree);
 
-  struct visit_context *context = context_new(tree_sitter_ptbrjavascript(), source_code, debug);
+  struct visit_context *context = context_new(tree_sitter_roseta_javascript(), source_code, debug);
 
   context_set_global_visitor(context, node_text, NULL);
 
