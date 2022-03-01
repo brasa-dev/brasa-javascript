@@ -1,58 +1,57 @@
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include <jansson.h>
-#include "libs/tree-sitter/lib/include/tree_sitter/api.h"
 #include "libs/tree-sitter-visitor/tree-sitter-visitor.h"
+#include "libs/tree-sitter/lib/include/tree_sitter/api.h"
+#include <jansson.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 /* #include <node_api.h> */
 
-char * VERSION = "v0.0.1";
+char *VERSION = "v0.0.1";
 int debug = 0;
-int BEAUTIFY = 0;
-int KEEP_COMMENTS = 0;
 FILE *new_stdout;
 json_t *dialect;
 json_t *lexicon;
 json_t *identifiers;
 
-void node_text (TSNode node, struct visit_context * context) {
+void node_text(TSNode node, struct visit_context *context) {
   if (strcmp(ts_node_type(node), ts_node_text(node, context)) == 0) {
-    const char * keyword = json_string_value(json_object_get(lexicon, ts_node_text(node, context)));
+    const char *keyword = json_string_value(
+        json_object_get(lexicon, ts_node_text(node, context)));
     if (keyword != NULL) {
       printf("%s ", keyword);
     } else {
       printf("%s", ts_node_text(node, context));
     }
-  } else if (
-      strcmp(ts_node_type(node), "identifier") == 0
-  ) {
-    const json_t * id = json_object_get(identifiers, ts_node_text(node, context));
+  } else if (strcmp(ts_node_type(node), "identifier") == 0) {
+    const json_t *id =
+        json_object_get(identifiers, ts_node_text(node, context));
     if (id != NULL) {
-      const char * text = json_string_value(json_object_get(id, "value"));
+      const char *text = json_string_value(json_object_get(id, "value"));
       printf("%s", text);
     } else {
       printf("%s", ts_node_text(node, context));
     }
-  } else if (
-      strcmp(ts_node_type(node), "property_identifier") == 0
-  ) {
-    // go up until no more member_expression 
+  } else if (strcmp(ts_node_type(node), "property_identifier") == 0) {
+    // go up until no more member_expression
     TSNode member = node;
     TSNode seeker = ts_node_parent(node);
-    while(!ts_node_is_null(seeker) && strcmp(ts_node_type(seeker), "member_expression") == 0) {
+    while (!ts_node_is_null(seeker) &&
+           strcmp(ts_node_type(seeker), "member_expression") == 0) {
       member = seeker;
       seeker = ts_node_parent(seeker);
     };
 
     // go down until identifier
     seeker = ts_node_child(member, 0);
-    while(!ts_node_is_null(seeker) && strcmp(ts_node_type(seeker), "identifier") != 0) {
+    while (!ts_node_is_null(seeker) &&
+           strcmp(ts_node_type(seeker), "identifier") != 0) {
       member = seeker;
       seeker = ts_node_child(member, 0);
     };
 
     // we have identifier obj
-    json_t * curIdObj = json_object_get(identifiers, ts_node_text(seeker, context));
+    json_t *curIdObj =
+        json_object_get(identifiers, ts_node_text(seeker, context));
 
     // go up and right translating until reach node
     TSNode propId = seeker;
@@ -63,32 +62,31 @@ void node_text (TSNode node, struct visit_context * context) {
       curIdObj = json_object_get(curIdObj, "properties");
       curIdObj = json_object_get(curIdObj, ts_node_text(propId, context));
       seeker = member;
-    } while(!ts_node_eq(propId, node));
+    } while (!ts_node_eq(propId, node));
 
     if (curIdObj != NULL) {
-      const char * text = json_string_value(json_object_get(curIdObj, "value"));
+      const char *text = json_string_value(json_object_get(curIdObj, "value"));
       printf("%s", text);
     } else {
       printf("%s", ts_node_text(node, context));
     }
-  } else if (
-      strcmp(ts_node_type(node), "regex_pattern") == 0
-      || strcmp(ts_node_type(node), "statement_identifier") == 0
-      || strcmp(ts_node_type(node), "shorthand_property_identifier") == 0
-      || strcmp(ts_node_type(node), "regex_flags") == 0
-      || strcmp(ts_node_type(node), "number") == 0
-  ) {
+  } else if (strcmp(ts_node_type(node), "regex_pattern") == 0 ||
+             strcmp(ts_node_type(node), "statement_identifier") == 0 ||
+             strcmp(ts_node_type(node), "shorthand_property_identifier") == 0 ||
+             strcmp(ts_node_type(node), "regex_flags") == 0 ||
+             strcmp(ts_node_type(node), "white_space") == 0 ||
+             strcmp(ts_node_type(node), "number") == 0) {
     printf("%s", ts_node_text(node, context));
   }
 }
 
-int parse_file(int argc, char * argv[]) {
+int parse_file(int argc, char *argv[]) {
   int i;
-  char * output_path = NULL;
-  char * config_path = NULL;
+  char *output_path = NULL;
+  char *config_path = NULL;
   int last_arg = 0;
   for (i = 0; i < argc; i++) {
-    char * arg = argv[i];
+    char *arg = argv[i];
     if (strcmp("-v", arg) == 0 || strcmp("--version", arg) == 0) {
       printf("@lotuz/roseta-javascript%s\n", VERSION);
       return 0;
@@ -126,7 +124,7 @@ int parse_file(int argc, char * argv[]) {
     }
   }
   size_t buffer_size = BUFSIZ;
-  char * buffer = malloc(buffer_size);
+  char *buffer = malloc(buffer_size);
   if (output_path != NULL) {
     printf("Missing config file path\n");
     return 1;
@@ -134,9 +132,9 @@ int parse_file(int argc, char * argv[]) {
 
   if (output_path != NULL) {
     new_stdout = freopen(output_path, "w", stdout);
-    if(new_stdout == NULL) {
-       perror("fopen"); 
-       return 1;
+    if (new_stdout == NULL) {
+      perror("fopen");
+      return 1;
     }
   } else {
     new_stdout = stdout;
@@ -144,7 +142,7 @@ int parse_file(int argc, char * argv[]) {
 
   setvbuf(new_stdout, buffer, _IOFBF, buffer_size);
 
-  char * file_path = argv[argc - 1];
+  char *file_path = argv[argc - 1];
   if (file_path == NULL) {
     printf("No files passed...\n");
     return 1;
@@ -155,7 +153,7 @@ int parse_file(int argc, char * argv[]) {
   json_error_t error;
   dialect = json_loads(source_json, 0, &error);
 
-  if(!dialect) {
+  if (!dialect) {
     fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
     return 1;
   }
@@ -167,16 +165,13 @@ int parse_file(int argc, char * argv[]) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_roseta_javascript());
 
-  TSTree *tree = ts_parser_parse_string(
-    parser,
-    NULL,
-    source_code,
-    strlen(source_code)
-  );
+  TSTree *tree =
+      ts_parser_parse_string(parser, NULL, source_code, strlen(source_code));
 
   TSNode root_node = ts_tree_root_node(tree);
 
-  struct visit_context *context = context_new(tree_sitter_roseta_javascript(), source_code, debug);
+  struct visit_context *context =
+      context_new(tree_sitter_roseta_javascript(), source_code, debug);
 
   context_set_global_visitor(context, node_text, NULL);
 
@@ -192,9 +187,7 @@ int parse_file(int argc, char * argv[]) {
   return 0;
 }
 
-int main (int argc, char * argv[]) {
-  parse_file(argc, argv);
-}
+int main(int argc, char *argv[]) { parse_file(argc, argv); }
 
 /* napi_value jsminify (napi_env env, napi_callback_info cbinfo) { */
 /*   size_t argc = 0; */
@@ -212,7 +205,8 @@ int main (int argc, char * argv[]) {
 /*   size_t str_len = 1024; */
 /*   for (size_t i = 0; i < argc; i++) { */
 /*     args[i] = malloc(str_len); */
-/*     if(napi_get_value_string_utf8(env, argv[i], (char *) args[i], 1024, &str_len) != napi_ok) { */
+/*     if(napi_get_value_string_utf8(env, argv[i], (char *) args[i], 1024,
+ * &str_len) != napi_ok) { */
 /*       napi_throw_error(env, "EINVAL", "Expected string"); */
 /*       return NULL; */
 /*     } */
