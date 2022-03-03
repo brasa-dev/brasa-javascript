@@ -18,7 +18,7 @@ void node_text(TSNode node, struct visit_context *context) {
     const char *keyword = json_string_value(
         json_object_get(lexicon, ts_node_text(node, context)));
     if (keyword != NULL) {
-      printf("%s ", keyword);
+      printf("%s", keyword);
     } else {
       printf("%s", ts_node_text(node, context));
     }
@@ -176,7 +176,6 @@ int parse_file(int argc, char *argv[]) {
   context_set_global_visitor(context, node_text, NULL);
 
   visit_tree(root_node, context);
-  printf("\n");
 
   context_delete(context);
   ts_tree_delete(tree);
