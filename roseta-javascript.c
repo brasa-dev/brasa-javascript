@@ -154,6 +154,8 @@ int parse_file(int argc, char *argv[]) {
   dialect = json_loads(source_json, 0, &error);
 
   if (!dialect) {
+    fprintf(stderr, "file: %s\n", file_path);
+    fprintf(stderr, "config: %s\n", config_path);
     fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
     return 1;
   }
