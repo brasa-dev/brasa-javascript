@@ -16,6 +16,34 @@ The project is not yet mature and is mainly intended for educational purposes.
 
 **Use it with caution!**
 
+## step by step
+
+> this setup is temporary, should get better in the future
+
+```sh
+mkdir brasa
+cd brasa
+git clone git@github.com:brasa-dev/brasa-javascript-dialects.git
+git clone git@github.com:brasa-dev/tree-sitter-javascript.git
+git clone git@github.com:brasa-dev/brasa-javascript.git
+
+# ensure that you hav jq installed in your path
+# jq - https://jqlang.github.io/jq/
+cd brasa-javascript-dialects
+./build.sh
+
+cd ../brasa-javascript
+./build.sh
+
+# Translate Brasascript to Javascript
+./roseta-javascript-pt-br -c ../brasa-javascript-dialects/build/pt-br_en.json code.brasa
+
+# Translate Javascript to Brasascript
+./roseta-javascript-en -c ../brasa-javascript-dialects/build/en_pt-br.json code.js
+
+```
+
+
 ## Dependencies
 
 - [tree-sitter](https://github.com/tree-sitter/tree-sitter)
