@@ -1,7 +1,7 @@
-for dialect in ../roseta-javascript-dialects/dialects/*; do
+for dialect in ../brasa-javascript-dialects/dialects/*; do
   [ ! -d $dialect ] && continue
 
-  DIALECT=${dialect##../roseta-javascript-dialects/dialects/}
+  DIALECT=${dialect##../brasa-javascript-dialects/dialects/}
   echo $DIALECT
 
   gcc -Wall -I tree-sitter/lib/include \
@@ -11,8 +11,8 @@ for dialect in ../roseta-javascript-dialects/dialects/*; do
     -ggdb \
     roseta-javascript.c                                        \
     ./libs/tree-sitter-visitor/tree-sitter-visitor.c  \
-    ../tree-sitter-roseta-javascript/dialects/tree-sitter-roseta-javascript-$DIALECT/src/parser.c        \
-    ../tree-sitter-roseta-javascript/dialects/tree-sitter-roseta-javascript-$DIALECT/src/scanner.c       \
+    ../tree-sitter-javascript/dialects/tree-sitter-roseta-javascript-$DIALECT/src/parser.c        \
+    ../tree-sitter-javascript/dialects/tree-sitter-roseta-javascript-$DIALECT/src/scanner.c       \
     ./libs/tree-sitter/lib/src/lib.c                  \
     -ljansson \
     -lm \
